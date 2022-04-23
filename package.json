@@ -10,9 +10,12 @@
   "dependencies": {
     "@vertx/eventbus-bridge-client.js": "^1.0.0-3-SNAPSHOT",
     "axios": "^0.26.1",
+    "buffer": "^6.0.3",
     "core-js": "^3.8.3",
     "sockjs-client": "^1.6.0",
-    "vue": "^3.2.13"
+    "sweetalert2": "^11.4.8",
+    "vue": "^3.2.13",
+    "vue-router": "^4.0.14"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",
