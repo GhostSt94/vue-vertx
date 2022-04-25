@@ -7,7 +7,8 @@
         </div>
         <div v-else class="container pt-5">
             <div class="row justify-content-evenly mb-4">
-                <div class="col-md-6 bg-white py-3 rounded shadow-sm">
+                <div class="col-md-8 bg-white py-3 rounded shadow-sm">
+                    <i @click="back" class="fa-solid fa-arrow-left-long float-start text-secondary back"></i>
                     <div class="float-end">
                         <i v-if="!updating" @click="toggleUpdate" class="fa-solid fa-pen-to-square fa-lg text-warning m-3"></i>
                         <i v-else @click="toggleUpdate" class="fa-solid fa-xmark fa-lg m-3"></i>
@@ -15,12 +16,12 @@
                     </div>
                     <div class="row justify-content-center text-center">
                         <div class="col-6 mb-3">
-                            <span class="text-muted">Name</span><br> 
+                            <span class="text-muted"><i>Name</i> </span><br> 
                             <input v-if="updating" type="text" class="form-control" v-model="project.nom">
                             <span v-else class="h5 fw-bold">{{project.nom}}</span>                
                         </div>
                         <div class="col-6 mb-3">
-                            <span class="text-muted">Client</span><br> 
+                            <span class="text-muted"><i>Client</i> </span><br> 
                             <input v-if="updating" type="text" class="form-control" v-model="project.client">
                             <span v-else class="h5 fw-bold">{{project.client}}</span>
                         </div>
@@ -28,9 +29,9 @@
                             <table class="table table-borderless">                                
                                 <tbody>
                                     <tr class="text-muted">
-                                        <td>Date Debut</td>
+                                        <td><i>Date Debut</i> </td>
                                         <td></td>
-                                        <td>Date Fin</td>
+                                        <td><i>Date Fin</i> </td>
                                     </tr>
                                     <tr class="fw-bold">
                                         <td>
@@ -47,7 +48,7 @@
                             </table>
                         </div>
                         <div class="col-12 mb-3">
-                            <span class="text-muted">Status</span><br> 
+                            <span class="text-muted"><i>Status</i> </span><br> 
                             <select v-if="updating" v-model="project.status" class="form-select form-select-md" aria-label=".form-select-sm">
                                 <option value="Prospecter">Prospecter</option>
                                 <option value="En cours">En cours</option>
@@ -58,32 +59,35 @@
                             <span v-else class="h5 fw-bold">{{project.status}}</span>
                         </div>
                         <div class="col-6 mb-3">
-                            <span class="text-muted">Montant</span><br> 
+                            <span class="text-muted"><i>Montant</i> </span><br> 
                             <input v-if="updating" type="number" min="0" step="100" class="form-control" v-model="project.montant">
                             <span v-else class="h5 fw-bold">{{project.montant}} DH</span>
                         </div>
                         <div class="col-6 mb-3">
-                            <span class="text-muted">Garantie</span><br> 
+                            <span class="text-muted"><i>Garantie</i> </span><br> 
                             <input v-if="updating" type="number" min="0" step="100" class="form-control" v-model="project.garantie">
                             <span v-else class="h5 fw-bold">{{project.garantie}} DH</span>
                         </div>
                     </div>
                     <button v-if="updating" @click="updateProject" class="btn btn-warning float-end">Modifier</button>
                 </div>
-                <div class="col-md-4 mt-3 bg-white py-3 rounded shadow-sm text-center h-50 factures">
+                <div class="col-md-3 mt-3 bg-white py-3 rounded shadow-sm text-center h-50 factures">
                     <button type="button" class="btn btn-outline-primary border-0 float-end" data-bs-toggle="modal" data-bs-target="#ProjectFileModal">
                         <i class="fa-solid fa-plus fa-lg"></i>
                     </button>
-                    <h4>Files</h4>
+                    <h4>File</h4>
                     <hr>
-                    <h6 v-if="files.length===0" class="text-muted">Aucun File</h6>
-                    <div v-else>
-                        
+                    <h6 v-if="project.file==null" class="text-muted">Aucun File</h6>
+                    <div v-else class="container text-center">
+                    <i @click="deleteProjectFile(project._id)" title="supprimer fichier" class="fa-solid fa-xmark text-muted float-end opacity-25"></i>
+                        <a v-bind:href="'http://localhost:8888/files/project/'+project.file" target="_blank">
+                            {{project.file.substring(project.file.indexOf("_") + 1)}}<i class="fa-solid fa-file-pdf ms-2"></i>
+                        </a>
                     </div>
                 </div>
             </div>
             <div class="row justify-content-center text-center mb-3">
-                <div class="col-10 bg-white rounded shadow p-3">
+                <div class="col-12 bg-white rounded shadow p-3">
                     <button type="button" class="btn btn-outline-primary border-0 m-1 float-end" data-bs-toggle="modal" data-bs-target="#factureModal">
                         <i class="fa-solid fa-plus fa-lg"></i>
                     </button>
@@ -95,15 +99,22 @@
                                 <td>Date</td>
                                 <td>Montant</td>
                                 <td>Status</td>
+                                <td>File</td>
                                 <td>
                                 </td>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="facture in factures" :key="facture._id">
-                                <td class="text-success">{{facture.date}}</td>
+                                <td class="text-success fw-bold">{{facture.date}}</td>
                                 <td>{{facture.montant}} DH</td>
                                 <td>{{facture.status}}</td>
+                                <td>
+                                    <a v-if="facture.file!=''" v-bind:href="'http://localhost:8888/files/facture/'+facture.file" target="_blank">
+                                        <i title="supprimer facture" class="fa-solid fa-file-pdf"></i>
+                                    </a>
+                                    <span v-else>...</span>
+                                </td>
                                 <td><i  @click="(e)=>deleteFacture(e,facture._id)" class="fa-solid fa-xmark text-muted opacity-25"></i></td>
                             </tr>
                         </tbody>
@@ -113,7 +124,7 @@
         </div>
     </div>
     <FactureModal @new-facture="newFactures"/>
-    <ProjectFileModal />
+    <ProjectFileModal @reload-project="reloadProject"/>
 </template>
 
 <script>
@@ -138,6 +149,7 @@ export default {
                 status:"",
                 montant:0,
                 garantie:0,
+                file:null
             },
             loading:true,
             not_found:false,
@@ -149,11 +161,17 @@ export default {
         }
     },
     methods:{
+        back(){
+            this.$router.back()
+        },
         toggleUpdate(){
             this.updating=!this.updating
         },
         newFactures({msg}){
             this.factures=msg
+        },
+        reloadProject({msg}){
+            this.project=msg
         },
         deleteProject(id){
             var ref=this
@@ -166,13 +184,12 @@ export default {
                     if (result.isConfirmed) {
                         var eb = new EventBus('http://localhost:8888/eventbus');
                         eb.onopen = function() {
-                            eb.send('delete.project', id,(err,msg) =>{
+                            eb.send('delete.project', id,(err) =>{
                                 if(err){
                                     console.log(err);
                                     return
                                 }
                                 Swal.fire('Projet Supprimé')
-                                console.log(msg);
                                 ref.$router.back()
                             });
                         }
@@ -191,12 +208,12 @@ export default {
                     if (result.isConfirmed) {
                         var eb = new EventBus('http://localhost:8888/eventbus');
                         eb.onopen = function() {
-                            eb.send('update.project', ref.project,(err,msg) =>{
+                            eb.send('update.project', ref.project,(err) =>{
                                 if(err){
                                     console.log(err);
                                     return
                                 }
-                                console.log(msg);
+                                // console.log(msg);
                                 ref.updating=false;
                                 Swal.fire('Projet Modifié')
                                 ref.getProject(eb,ref)
@@ -214,17 +231,31 @@ export default {
                     if (result.isConfirmed) {
                         var eb = new EventBus('http://localhost:8888/eventbus');
                         eb.onopen = function() {
-                            eb.send('delete.facture', id,(err,msg) =>{
+                            eb.send('delete.facture', id,(err) =>{
                                 if(err){
                                     console.log(err);
                                     return
                                 }
                                 e.target.closest('tr').remove()
-                                console.log(msg);
                             });
                         }
                     } 
                 })
+        },
+        deleteProjectFile(id){
+            var ref=this
+            var eb = new EventBus('http://localhost:8888/eventbus');
+            eb.onopen = function() {
+                eb.send('delete.project.file', id,(err) =>{
+                    if(err){
+                        console.log(err);
+                        alert(err)
+                        return
+                    }
+                    ref.project.file=null
+                    Swal.fire("file removed")
+                });
+            }
         },
         getProject(eb,ref){
             eb.send('get.project', ref.$route.params.id,(err,msg) =>{

@@ -98,14 +98,31 @@ export default {
                 ref.status=""
                 ref.date=null
                 
-                ref.saveFile(msg.body,file)
-                eb.send("get.facture.all",ref.$route.params.id,(err,msg)=>{
-                    if(err){
-                        console.log(err)
-                        return
-                    }
-                    ref.$emit("new-facture",{msg:msg.body})
+                // ref.saveFile(msg.body,file)
+                // if(ref.err==""){
+                var id=msg.body
+                var myFormData = new FormData();
+                myFormData.append('file', file.files[0]);
+                axios.post(`http://localhost:8888/facture/save/${id}`,myFormData)
+                .then(res=>{
+                    console.log(res.data)
+                    ref.loading=false
+                    ref.success=true
+                    file.value=""
+                    eb.send("get.facture.all",ref.$route.params.id,(err,msg)=>{
+                        if(err){
+                            console.log(err)
+                            return
+                        }
+                        ref.$emit("new-facture",{msg:msg.body})
+                    })
                 })
+                .catch(err=>{
+                    console.error(err)
+                    eb.send('delete.facture', id)
+                    this.err="error uploading file"
+                })
+                
                 console.log(msg);
                 });
             };
@@ -114,23 +131,23 @@ export default {
                 eb = null;
             };
         },
-        saveFile(id,file){
-            if(this.err==""){
-                var myFormData = new FormData();
-                myFormData.append('file', file.files[0]);
-                axios.post(`http://localhost:8888/facture/save/${id}`,myFormData)
-                .then(res=>{
-                    console.log(res.data)
-                    this.loading=false
-                    this.success=true
-                    file.value=""
-                })
-                .catch(err=>{
-                    console.error(err)
-                    this.err="error uploading file"
-                })
-            }
-        }
+        // saveFile(id,file){
+        //     if(this.err==""){
+        //         var myFormData = new FormData();
+        //         myFormData.append('file', file.files[0]);
+        //         axios.post(`http://localhost:8888/facture/save/${id}`,myFormData)
+        //         .then(res=>{
+        //             console.log(res.data)
+        //             this.loading=false
+        //             this.success=true
+        //             file.value=""
+        //         })
+        //         .catch(err=>{
+        //             console.error(err)
+        //             this.err="error uploading file"
+        //         })
+        //     }
+        // }
     }
 }
 </script>

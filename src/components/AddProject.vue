@@ -31,7 +31,7 @@
                         <label class="h5">Status :</label>
                     </div>
                     <div class="col-9">
-                        <select v-model="status" class="form-select form-select-md" aria-label=".form-select-sm">
+                        <select v-model="status" class="form-select form-select-md">
                             <option value="Prospecter">Prospecter</option>
                             <option value="En cours">En cours</option>
                             <option value="Reception provisoir">Reception provisoir</option>
@@ -132,9 +132,9 @@ export default {
 }
 </script>
 
-<style scoped>
-    .back{
+<style >
+    .back:hover{
         cursor: pointer;
-        color: black;
+        color: black !important;
     }
 </style>

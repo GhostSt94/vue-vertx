@@ -27,7 +27,7 @@
 </template>
 
 <script>
-// import EventBus from "@vertx/eventbus-bridge-client.js";
+import EventBus from "@vertx/eventbus-bridge-client.js";
 import axios from "axios";
 export default {
     name:"FactureModal",
@@ -45,11 +45,39 @@ export default {
                 this.err="Veuillez Ajouter un fichier"
                 return
             }
+            if(file.files[0].type!=='application/pdf'){
+                this.err="Format fichier invalid"
+                return
+            }
+            this.err=""
             this.success=false
             this.loading=true
             
-                
-            this.saveFile(this.$route.params.id,file)
+            var id=this.$route.params.id
+            var myFormData = new FormData();
+            myFormData.append('file', file.files[0]);
+            axios.post(`http://localhost:8888/project/save/${id}`,myFormData)
+            .then(res=>{
+                console.log(res.data)
+                this.loading=false
+                this.success=true
+                file.value=""
+                var ref=this
+                var eb=new EventBus('http://localhost:8888/eventbus')
+                eb.onopen=()=>{
+                    eb.send("get.project",id,(err,msg)=>{
+                        if(err){
+                            console.log(err)
+                            return
+                        }
+                        ref.$emit("reload-project",{msg:msg.body})
+                    })
+                }
+            })
+            .catch(err=>{
+                console.error(err)
+                this.err="error uploading file"
+            })
             // eb.send("get.facture.all",ref.$route.params.id,(err,msg)=>{
             //     if(err){
             //         console.log(err)
@@ -60,23 +88,23 @@ export default {
             // console.log(msg);
             
         },
-        saveFile(id,file){
-            if(this.err==""){
-                var myFormData = new FormData();
-                myFormData.append('file', file.files[0]);
-                axios.post(`http://localhost:8888/project/save/${id}`,myFormData)
-                .then(res=>{
-                    console.log(res.data)
-                    this.loading=false
-                    this.success=true
-                    file.value=""
-                })
-                .catch(err=>{
-                    console.error(err)
-                    this.err="error uploading file"
-                })
-            }
-        }
+        // saveFile(id,file){
+        //     if(this.err==""){
+        //         var myFormData = new FormData();
+        //         myFormData.append('file', file.files[0]);
+        //         axios.post(`http://localhost:8888/project/save/${id}`,myFormData)
+        //         .then(res=>{
+        //             console.log(res.data)
+        //             this.loading=false
+        //             this.success=true
+        //             file.value=""
+        //         })
+        //         .catch(err=>{
+        //             console.error(err)
+        //             this.err="error uploading file"
+        //         })
+        //     }
+        // }
     }
 }
 </script>

@@ -1,20 +1,29 @@
 <template>
   <div class="container text-center pt-5 min-vh-100 position-relative">
     <div class="row pt-lg-5">
+      
       <div class="col-md-8">
+        <FilterProjects @filter-projects="changeProjects"/>
         <i v-if="loading" class="fa-solid fa-circle-notch fa-spin mx-3"></i>
-        <table v-else class="table table-hover h-50">
+        <table v-else-if="projects.length>0" class="table table-hover h-50">
           <thead class="fw-bold">
+            <td>Date debut</td>
+            <td>Date fin</td>
             <td>Projets</td>
             <td>Client</td>
           </thead>
           <tbody>
             <tr v-for="project in projects" :key="project._id" @click="redirectToDetails(project._id)">
+              <td>{{project.date_debut}}</td>
+              <td>{{project.date_fin}}</td>
               <td>{{project.nom}}</td>
               <td>{{project.client}}</td>
             </tr>
           </tbody>
         </table>
+        <div v-else>
+          <h4 class="text-muted m-3">Aucun Projet</h4>
+        </div>
       </div>
       <div class="col-md-4 align-middle">
         <button @click="redirectToAdd" class="btn btn-outline-primary rounded-circle" title="Ajouter projet"><i class="fa-solid fa-plus"></i></button>
@@ -25,8 +34,12 @@
 
 <script>
 import EventBus from "@vertx/eventbus-bridge-client.js";
+import FilterProjects from "./home-page/FilterProjects.vue";
 export default {
   name:"HomePage",
+  components:{
+    FilterProjects
+  },
   data(){
     return{
       projects:[],
@@ -39,6 +52,9 @@ export default {
     },
     redirectToDetails(id){
       this.$router.push(`/project/${id}`)
+    },
+    changeProjects({msg}){
+      this.projects=msg
     }
   },
   mounted(){
@@ -54,7 +70,6 @@ export default {
           }
           ref.loading=false
           ref.projects=msg.body
-          console.log(ref.projects);
         });
     };
     eb.onclose = function() {
